@@ -6,8 +6,8 @@
     "type": "offline"
   },
   "server": {
-    "ip": "slobtest1.aternos.me",
-    "port": 27586,
+    "ip": "Saidolimxon1.aternos.me",
+    "port": 56730,
     "version": "",
     "try-creative": false
   },
@@ -31,9 +31,7 @@
       "repeat": true,
       "repeat-delay": 120,
       "messages": [
-        "I'm a regular player",
-        "Subscribe to Slobos!",
-        "I like to play Minecraft!"
+        "/msg Saidolimxon_1 I'm alive",
       ]
     },
     "chat-log": true,
@@ -45,7 +43,7 @@
     "enabled": true,
     "circle-walk": {
       "enabled": true,
-      "radius": 4,
+      "radius": 10,
       "speed": 3000
     },
     "look-around": {
@@ -69,8 +67,8 @@
     "auto-eat": true
   },
   "beds": {
-    "pick-up-day": false,
-    "place-night": false
+    "pick-up-day": true,
+    "place-night": true
   },
   "discord": {
     "enabled": false,
