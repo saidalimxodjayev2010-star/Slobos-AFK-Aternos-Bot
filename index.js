@@ -2,6 +2,7 @@
 
 const { addLog, getLogs } = require("./logger");
 const mineflayer = require("mineflayer");
+const forge = require("mineflayer-forge"); // Added for modded support
 const { Movements, pathfinder, goals } = require("mineflayer-pathfinder");
 const { GoalBlock } = goals;
 const config = require("./settings.json");
@@ -9,23 +10,61 @@ const express = require("express");
 const http = require("http");
 const https = require("https");
 
-// ============================================================
+// ==============================================================================
 // EXPRESS SERVER - Keep Render/Aternos alive
-// ============================================================
+// ==============================================================================
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
-// Bot state tracking
+// Bot state tracking (from Screenshot 2026-05-06 174951.png)
 let botState = {
-  connected: false,
-  lastActivity: Date.now(),
-  reconnectAttempts: 0,
-  startTime: Date.now(),
-  errors: [],
-  wasThrottled: false,
+    connected: false,
+    lastActivity: Date.now(),
+    reconnectAttempts: 0,
+    startTime: Date.now(),
+    errors: [],
+    wasThrottled: false,
 };
 
+// ... [Health check dashboard code from Screenshot 2026-05-06 175007.png] ...
+
+function createBot() {
+    // Ensure config.version in settings.json matches your Forge version
+    const bot = mineflayer.createBot({
+        host: config.host,
+        port: config.port,
+        username: config.username,
+        version: config.version, 
+        auth: config.auth || 'offline'
+    });
+
+    // Load Forge and Pathfinder plugins
+    bot.loadPlugin(forge); 
+    bot.loadPlugin(pathfinder);
+
+    bot.on('spawn', () => {
+        botState.connected = true;
+        addLog("Bot successfully joined the modded server.");
+        console.log(`Bot joined as ${bot.username}`);
+    });
+
+    bot.on('error', (err) => {
+        botState.errors.push(err.message);
+        console.log(`Connection Error: ${err.message}`);
+    });
+
+    bot.on('end', () => {
+        botState.connected = false;
+        addLog("Bot disconnected. Reconnecting...");
+        setTimeout(createBot, 5000); // Auto-reconnect logic
+    });
+}
+
+app.listen(PORT, () => {
+    console.log(`Dashboard running on port ${PORT}`);
+    createBot(); // Start the bot after the server is up
+});
 // Health check endpoint for monitoring
 app.get('/', (req, res) => {
   res.send(`
